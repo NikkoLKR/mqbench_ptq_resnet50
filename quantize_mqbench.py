@@ -22,14 +22,14 @@ class DotDict(dict):
         return value
 
 # 加载预训练的resnet50模型
-# model = models.resnet50(pretrained=True)
-model = torch.load("./resnet50.pth")
+model = models.resnet50(pretrained=True)
+# model = torch.load("./resnet50.pth")
 model.eval()
 model.cuda()
 
 
 # 数据路径和批处理大小
-data_path = "/home/chatbot/Desktop/Diffusion_ws/Quantization/ILSVR2012_copy"
+data_path = "../ILSVRC2012/"
 
 def load_calibrate_data(train_loader, cali_batchsize):
     cali_data = []
@@ -52,13 +52,13 @@ extra_prepare_dict = {
         'w_fakequantize': 'AdaRoundFakeQuantize',
         'a_fakequantize': 'QDropFakeQuantize',# 后面prob设置为1，因此这里实际用的是BRECQ
         'w_qscheme':{
-            'bit': 8,
+            'bit': 4,
             'symmetry': False,
             'per_channel': True,
             'pot_scale': False,
         },
         'a_qscheme':{
-            'bit': 8,
+            'bit': 4,
             'symmetry': False,
             'per_channel': False,
             'pot_scale': False,
@@ -78,7 +78,7 @@ ptq_reconstruction_config = {
     'scale_lr': 4.0e-5,                   # 参数的学习率
     'warm_up': 0.2,                       # 不加正则化直接向下或向上取整的迭代次数占最大迭代次数的比例
     'weight': 0.01,                       # 正则项的损失权重
-    'max_count': 1,                   # 迭代步数
+    'max_count': 1000,                   # 迭代步数
     'b_range': [20,2],                    # beta 衰减范围
     'keep_gpu': True,                     # 校准数据是否保留在 GPU 上
     'round_mode': 'learned_hard_sigmoid', # 重建权重的方式
