@@ -22,14 +22,14 @@ class DotDict(dict):
         return value
 
 # 加载预训练的resnet50模型
-model = models.resnet50(pretrained=True)
-# model = torch.load("./resnet50.pth")
+# model = models.resnet50(pretrained=True)
+model = torch.load("./resnet50.pth")
 model.eval()
 model.cuda()
 
 
 # 数据路径和批处理大小
-data_path = "../ILSVRC2012"
+data_path = "/home/chatbot/Desktop/Diffusion_ws/Quantization/ILSVR2012_copy"
 
 def load_calibrate_data(train_loader, cali_batchsize):
     cali_data = []
@@ -51,24 +51,24 @@ extra_prepare_dict = {
         'a_observer': 'EMAMinMaxObserver',
         'w_fakequantize': 'AdaRoundFakeQuantize',
         'a_fakequantize': 'QDropFakeQuantize',# 后面prob设置为1，因此这里实际用的是BRECQ
-    },
-    'w_qscheme':{
-        'bit': 4,
-        'symmetry': False,
-        'per_channel': True,
-        'pot_scale': False,
-    },
-    'a_qscheme':{
-        'bit': 4,
-        'symmetry': False,
-        'per_channel': False,
-        'pot_scale': False,
+        'w_qscheme':{
+            'bit': 8,
+            'symmetry': False,
+            'per_channel': True,
+            'pot_scale': False,
+        },
+        'a_qscheme':{
+            'bit': 8,
+            'symmetry': False,
+            'per_channel': False,
+            'pot_scale': False,
+        }
     }
 }
 extra_prepare_dict = DotDict(extra_prepare_dict)
 
 
-backend_type = BackendType.Tensorrt
+backend_type = BackendType.Academic
 model = prepare_by_platform(model,backend_type,extra_prepare_dict)
 model.cuda()
 
